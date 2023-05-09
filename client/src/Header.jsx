@@ -10,10 +10,10 @@ export default function Header() {
   return (
     <div>
           <header className='flex justify-between'>
-            <a href="" className='flex gap-2'>
+            <Link to={'/'} className='flex gap-2'>
            < FaLaptopHouse className=' text-2xl text-primary'/>
            <span className='font-bold text-xl'>Le Rento</span>
-            </a>
+            </Link>
             <div className='flex border gap-2 shadow-md shadow-gray-300 border-gray-300 rounded-full py-2 px-4'>
               <div>Anywhere</div>
               <div className="border border-l border-gray-300"></div>
@@ -24,17 +24,18 @@ export default function Header() {
               <FcSearch className=''/>
               </button>
             </div>
-            <Link to={'/login'} className="flex items-center border gap-2  shadow-gray-300 border-gray-300 rounded-full py-2 px-4">
+           
+            <Link to={user?'/account':'/login'} className="flex items-center border gap-2  shadow-gray-300 border-gray-300 rounded-full py-2 px-4">
             <RxHamburgerMenu/>
             <FaUserCircle className='text-gray-400 top-1'/>
            
-            {!!user && (
+           <div>
+           {!!user && (
               <div>
                 {user.name}
               </div>
             )}
-            
-
+           </div>
             </Link>
            
             
