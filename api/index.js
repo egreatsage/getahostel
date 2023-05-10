@@ -9,9 +9,14 @@ require('dotenv').config()
 const app = express();
 const bcryptSalt = bcrypt.genSaltSync(10)
 const jwtSecret = 'ff2dd2ee9rr9ffddererfdfddfdf'
+const imageDownloader = require('image-downloader')
+const fs = require('fs');
+const path = require('path');
 
 app.use(express.json());
 app.use(cookieParser());
+app.use('/models/uploads', express.static('/models/uploads'));
+
 app.use(cors({
     credentials:true,
     origin:'http://localhost:5173',
@@ -77,6 +82,31 @@ app.get('/profile',(req,res)=>{
 app.post('/logout',(req,res)=>{
     res.cookie('token','').json(true)
 })
+
+app.post('/upload-by-link', async (req, res) => {
+    const { link } = req.body;
+    const newName ='photo'+ Date.now() + '.jpg';
+  
+    const uploadDir = path.join(__dirname, '/models/uploads');
+    const destPath = path.join(uploadDir, newName);
+  
+    try {
+      // Create the destination directory if it doesn't exist
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir);
+      }
+  
+      await imageDownloader.image({
+        url: link,
+        dest: destPath,
+      });
+  
+      res.json(newName);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Failed to upload the image' });
+    }
+  });
 
 //7SMVToAcZ6SXH1up
 
