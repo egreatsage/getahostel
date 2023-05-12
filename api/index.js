@@ -5,6 +5,7 @@ const User = require ('./models/User.jsx')
 const bcrypt = require('bcryptjs')
 const jwt = require ('jsonwebtoken')
 const cookieParser = require('cookie-parser')
+const multer = require('multer')
 require('dotenv').config()
 const app = express();
 const bcryptSalt = bcrypt.genSaltSync(10)
@@ -15,7 +16,7 @@ const path = require('path');
 
 app.use(express.json());
 app.use(cookieParser());
-app.use('/models/uploads', express.static('/models/uploads'));
+app.use('/models/uploads', express.static(__dirname+'/models/uploads/'));
 
 app.use(cors({
     credentials:true,
@@ -83,30 +84,40 @@ app.post('/logout',(req,res)=>{
     res.cookie('token','').json(true)
 })
 
+
 app.post('/upload-by-link', async (req, res) => {
-    const { link } = req.body;
-    const newName ='photo'+ Date.now() + '.jpg';
-  
-    const uploadDir = path.join(__dirname, '/models/uploads');
-    const destPath = path.join(uploadDir, newName);
-  
-    try {
-      // Create the destination directory if it doesn't exist
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir);
-      }
-  
-      await imageDownloader.image({
-        url: link,
-        dest: destPath,
-      });
-  
-      res.json(newName);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Failed to upload the image' });
+  const { link } = req.body;
+  const newName ='photo'+ Date.now() + '.jpg';
+
+  const uploadDir = path.join(__dirname, '/models/uploads/');
+  const destPath = path.join(uploadDir, newName);
+
+  try {
+    // Create the destination directory if it doesn't exist
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir);
     }
-  });
+
+    await imageDownloader.image({
+      url: link,
+      dest: destPath,
+    });
+
+    res.json(newName);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to upload the image' });
+  }
+});
+
+const photosmiddleware = multer({dest: 'models/uploads/'})
+
+app.post('/upload',photosmiddleware.array('photos',100) , (req, res) => {
+  console.log(req.files)
+  res.json(req.files)
+})
+
+
 
 //7SMVToAcZ6SXH1up
 

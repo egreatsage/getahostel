@@ -41,6 +41,23 @@ export default function () {
       })
       setPhotoLink('')
     }
+     function uploadPhoto(ev){
+      const files = ev.target.files;
+      const data = new FormData();
+      for (let i = 0; i < files.length; i++) {
+        data.append('photos[]', files[i]);
+      }
+       axios.post('/upload',data,{
+        headers:{
+          'Content-Type':'multipart/form-data'
+        }
+      }).then(response=>{
+        const {data:filename} = response
+        setAddedPhotos(prev=>{
+          return [...prev,filename]
+        })
+      })
+    }
   return (
     <div>
       {
@@ -75,13 +92,17 @@ export default function () {
                onChange={ev=>setPhotoLink(ev.target.value)}/>
               <button onClick={addPhotoByLink} className='bg-gray-200 grow text-sm px-4 rounded-2xl'>Add</button>
              </div>
+             
              <div className='mt-4 grid grid-cols-3 md:grid-cols-4l lg:grid-cols-6 ' >
               {addedPhotos.length > 0 && addedPhotos.map(link=>(
                 <div>
-                  <img src={'http://localhost:4000/models/uploads/' + link}/>
+                  <img className='rounded-2xl mx-2' src={'http://localhost:4000/models/uploads/' + link}/>
                 </div>
               ))} 
-             <button className='border bg-transparent rounded-2xl p-8 text-xl flex justify-center gap-2 text-gray-600'><FiUpload className='text-3xl font-bold'/>Upload</button>
+             <label className='border cursor-pointer bg-transparent rounded-2xl p-8 text-xl flex justify-center gap-2 text-gray-600'>
+             <input type="file" className='hidden'  multiple onChange={uploadPhoto}/>
+              <FiUpload className='text-3xl font-bold'/>
+              Upload</label>
              </div>
 
              {preInput('Description', 'Make it appealing')}
