@@ -11,7 +11,7 @@ const app = express();
 const bcryptSalt = bcrypt.genSaltSync(10)
 const jwtSecret = 'ff2dd2ee9rr9ffddererfdfddfdf'
 const imageDownloader = require('image-downloader')
-const fs = require('fs');
+const fs = require('node:fs');
 const path = require('path');
 
 app.use(express.json());
@@ -110,11 +110,17 @@ app.post('/upload-by-link', async (req, res) => {
   }
 });
 
-const photosmiddleware = multer({dest: 'models/uploads/'})
-
+const photosmiddleware = multer({dest: '/models/uploads'})
 app.post('/upload',photosmiddleware.array('photos',100) , (req, res) => {
-  console.log(req.files)
-  res.json(req.files)
+  const uploadedFiles = [];
+   for (let i = 0; i<req.files.length; i++) {
+  const {path,originalname} = req.files[i];
+  const extension = path.ext(originalname);
+  const newPath = path.join(path.dirname(path), `${path.basename(path, extension)}${extension}`);
+  fs.renameSync(path, newPath);
+  uploadedFiles.push(newPath.replace('/models/uploads/', ''));
+}
+  res.json(uploadedFiles);
 })
 
 
